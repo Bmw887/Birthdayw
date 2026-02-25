@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Gülendam 🎂</title>
+
+<style>
+    :root {
+        --primary-pink: #ffb6c1;
+        --soft-gold: #ffd700;
+    }
+
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(circle at bottom, #1a0a2e, #090912);
+        color: white;
+        height: 100vh;
+    }
+
+    canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 3;
+        flex-direction: column;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    #startBtn {
+        padding: 15px 30px;
+        font-size: 1.5rem;
+        background: var(--primary-pink);
+        border: none;
+        border-radius: 50px;
+        color: #2b1055;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 0 20px var(--primary-pink);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    #startBtn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 30px var(--primary-pink);
+    }
+
+    .countdown {
+        font-size: 8rem;
+        font-weight: bold;
+        text-shadow: 0 0 30px var(--primary-pink);
+    }
+
+    .hidden { display: none !important; }
+
+    .container {
+        max-width: 80%;
+        z-index: 3;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-pink);
+        text-shadow: 0 0 15px rgba(255, 182, 193, 0.8);
+    }
+
+    .typing {
+        font-size: 1.3rem;
+        min-height: 200px;
+        line-height: 1.8;
+        color: #f0f0f0;
+        white-space: pre-wrap;
+    }
+
+    .footer {
+        margin-top: 30px;
+        font-style: italic;
+        color: var(--soft-gold);
+        font-size: 1.1rem;
+    }
+
+    @keyframes pop {
+        0% { transform: scale(0); opacity: 0; }
+        80% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+</head>
+
+<body>
+
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2023/03/28/audio_8c9a2f76ad.mp3" type="audio/mpeg">
+</audio>
+
+<canvas id="fireworks"></canvas>
+
+<div class="center" id="overlay">
+    <button id="startBtn">Click to Open Your Gift 🎁</button>
+</div>
+
+<div class="center hidden" id="countdownBox">
+    <div class="countdown" id="count">3</div>
+</div>
+
+<div class="center hidden" id="content">
+    <div class="container">
+        <h1>✨ Happy Birthday Gülendam ✨</h1>
+        <div class="typing" id="text"></div>
+        <div class="footer">🎈 Created with love for your special day 🎈</div>
+    </div>
+</div>
+
+<script>
+const startBtn = document.getElementById("startBtn");
+const overlay = document.getElementById("overlay");
+const countEl = document.getElementById("count");
+const box = document.getElementById("countdownBox");
+const content = document.getElementById("content");
+const music = document.getElementById("music");
+const textEl = document.getElementById("text");
+
+const message =
+"To the wonderful Gülendam... 🌸\n\n" +
+"On this beautiful day, the world became a brighter place because of you. " +
+"May your year ahead be as sweet as your smile and as bright as your spirit. ✨\n\n" +
+"I wish you deep laughter, adventures that take your breath away, " +
+"and a heart that always feels at home. 💖\n\n" +
+"Keep shining, keep dreaming, and never stop being the amazing person you are.\n\n" +
+"Happy Birthday! 🎂🎉🎁";
+
+startBtn.onclick = () => {
+    overlay.classList.add("hidden");
+    box.classList.remove("hidden");
+    music.play();
+    runCountdown();
+};
+
+function runCountdown() {
+    let count = 3;
+    const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countEl.textContent = count;
+            countEl.style.animation = "none";
+            void countEl.offsetWidth;
+            countEl.style.animation = "pop 0.8s ease";
+        } else {
+            clearInterval(timer);
+            box.classList.add("hidden");
+            content.classList.remove("hidden");
+            startTyping();
+            startFireworks();
+        }
+    }, 1000);
+}
+
+function startTyping() {
+    let i = 0;
+    function type() {
+        if (i < message.length) {
+            textEl.innerHTML += message[i];
+            i++;
+            setTimeout(type, 40);
+        }
+    }
+    type();
+}
+
+/* ===== FIREWORKS ENGINE ===== */
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+let fwArray = [];
+
+window.onresize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+};
+window.onresize();
+
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.velocity = {
+            x: (Math.random() - 0.5) * 8,
+            y: (Math.random() - 0.5) * 8
+        };
+        this.alpha = 1;
+        this.friction = 0.95;
+    }
+    draw() {
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+    update() {
+        this.velocity.x *= this.friction;
+        this.velocity.y *= this.friction;
+        this.x += this.velocity.x;
+        this.y += this.velocity.y + 0.05; // gravity
+        this.alpha -= 0.01;
+    }
+}
+
+class Firework {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height;
+        this.targetY = Math.random() * (canvas.height / 2);
+        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        this.velocity = -10;
+        this.particles = [];
+        this.dead = false;
+    }
+    update() {
+        if (this.y > this.targetY) {
+            this.y += this.velocity;
+        } else if (this.particles.length === 0) {
+            for (let i = 0; i < 60; i++) {
+                this.particles.push(new Particle(this.x, this.y, this.color));
+            }
+        }
+        this.particles.forEach((p, i) => {
+            p.update();
+            if (p.alpha <= 0) this.particles.splice(i, 1);
+        });
+        if (this.y <= this.targetY && this.particles.length === 0) this.dead = true;
+    }
+    draw() {
+        if (this.y > this.targetY) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        this.particles.forEach(p => p.draw());
+    }
+}
+
+function startFireworks() {
+    function animate() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (Math.random() < 0.05) fwArray.push(new Firework());
+
+        fwArray.forEach((fw, i) => {
+            fw.update();
+            fw.draw();
+            if (fw.dead) fwArray.splice(i, 1);
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+</script>
+</body>
+</html>
